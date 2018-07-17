@@ -1,0 +1,859 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "name": "Untitled24.ipynb",
+      "version": "0.3.2",
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python2",
+      "display_name": "Python 2"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "[View in Colaboratory](https://colab.research.google.com/github/kamini25singh/assignment/blob/master/Assignment_13ipynb)"
+      ]
+    },
+    {
+      "metadata": {
+        "id": "OLBwSRUMc7We",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "import matplotlib.pyplot as plt\n",
+        "import seaborn as sn\n",
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "%matplotlib inline\n",
+        "from sklearn import metrics\n",
+        "from sklearn.linear_model import LinearRegression\n",
+        "from sklearn.linear_model import LogisticRegression\n",
+        "from sklearn.model_selection import train_test_split\n",
+        "from sklearn.metrics import confusion_matrix\n",
+        "from sklearn.metrics import mean_absolute_error\n",
+        "from sklearn.metrics import mean_squared_error"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "mdxIpXpRdAXn",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "#Question 1\n",
+        "from sklearn.datasets import load_digits"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "-L2xiDVEhxJq",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "digit=load_digits()\n",
+        "x=digit.data\n",
+        "y=digit.target"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "v8hJ1JLch2b-",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 282
+        },
+        "outputId": "bebeb7ac-3e12-455c-cd3c-6d028d963a93"
+      },
+      "cell_type": "code",
+      "source": [
+        "plt.imshow(x[4].reshape(8,8),cmap=plt.cm.gray)"
+      ],
+      "execution_count": 5,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "<matplotlib.image.AxesImage at 0x7fb18c718250>"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 5
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "image/png": "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\n",
+            "text/plain": [
+              "<matplotlib.figure.Figure at 0x7fb18e7b2fd0>"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          }
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "t_f1B6osh-cE",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "#Question 2\n",
+        "\n",
+        "x_train,x_test,y_train,y_test = train_test_split(x,y,test_size = 0.3)"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "yH_sMjoyix1m",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "# Question 3\n",
+        "\n",
+        "from sklearn.svm import SVC"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "e9UjMDmriIlP",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "model=SVC()"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "J0vWI5KLiNfa",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 85
+        },
+        "outputId": "377359ef-2734-4973-9850-89b1b4b1d95f"
+      },
+      "cell_type": "code",
+      "source": [
+        "model.fit(x_train,y_train)"
+      ],
+      "execution_count": 12,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,\n",
+              "  decision_function_shape='ovr', degree=3, gamma='auto', kernel='rbf',\n",
+              "  max_iter=-1, probability=False, random_state=None, shrinking=True,\n",
+              "  tol=0.001, verbose=False)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 12
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "XhaRTfbVjABb",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "pred = model.predict(x_test)"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "Xyyy9juqjFn4",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 272
+        },
+        "outputId": "98ab76e9-3b1e-4304-fb72-2f34a836d314"
+      },
+      "cell_type": "code",
+      "source": [
+        "from sklearn.metrics import classification_report\n",
+        "print(classification_report(y_test,pred))"
+      ],
+      "execution_count": 14,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "             precision    recall  f1-score   support\n",
+            "\n",
+            "          0       1.00      0.35      0.52        57\n",
+            "          1       1.00      0.31      0.47        52\n",
+            "          2       1.00      0.23      0.37        48\n",
+            "          3       1.00      0.45      0.62        49\n",
+            "          4       1.00      0.25      0.40        60\n",
+            "          5       1.00      0.09      0.16        56\n",
+            "          6       1.00      0.28      0.44        60\n",
+            "          7       1.00      0.06      0.12        64\n",
+            "          8       1.00      0.02      0.04        52\n",
+            "          9       0.10      1.00      0.18        42\n",
+            "\n",
+            "avg / total       0.93      0.28      0.33       540\n",
+            "\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "NEZx06xHjL9s",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "outputId": "b164ff71-639a-4888-e996-64e6b741c9ad"
+      },
+      "cell_type": "code",
+      "source": [
+        "from sklearn import metrics\n",
+        "metrics.accuracy_score(y_test,pred)"
+      ],
+      "execution_count": 15,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0.2833333333333333"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 15
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "smn7Ws5-jTm1",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "from sklearn.metrics import confusion_matrix"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "M6Rl7LRmjaap",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 187
+        },
+        "outputId": "8303bd34-f428-46ac-e8d9-3d3edca896ad"
+      },
+      "cell_type": "code",
+      "source": [
+        "confusion_matrix(y_test,pred)"
+      ],
+      "execution_count": 17,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([[20,  0,  0,  0,  0,  0,  0,  0,  0, 37],\n",
+              "       [ 0, 16,  0,  0,  0,  0,  0,  0,  0, 36],\n",
+              "       [ 0,  0, 11,  0,  0,  0,  0,  0,  0, 37],\n",
+              "       [ 0,  0,  0, 22,  0,  0,  0,  0,  0, 27],\n",
+              "       [ 0,  0,  0,  0, 15,  0,  0,  0,  0, 45],\n",
+              "       [ 0,  0,  0,  0,  0,  5,  0,  0,  0, 51],\n",
+              "       [ 0,  0,  0,  0,  0,  0, 17,  0,  0, 43],\n",
+              "       [ 0,  0,  0,  0,  0,  0,  0,  4,  0, 60],\n",
+              "       [ 0,  0,  0,  0,  0,  0,  0,  0,  1, 51],\n",
+              "       [ 0,  0,  0,  0,  0,  0,  0,  0,  0, 42]])"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 17
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "MarpMmXtjiM9",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "model1=SVC(kernel=\"poly\")"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "87L0Nduijn1o",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 85
+        },
+        "outputId": "99e8a4be-8855-489b-dac1-3d48442c3184"
+      },
+      "cell_type": "code",
+      "source": [
+        "model1.fit(x_train,y_train)"
+      ],
+      "execution_count": 19,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,\n",
+              "  decision_function_shape='ovr', degree=3, gamma='auto', kernel='poly',\n",
+              "  max_iter=-1, probability=False, random_state=None, shrinking=True,\n",
+              "  tol=0.001, verbose=False)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 19
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "jl9HUt8OjsX1",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "pred1=model1.predict(x_test)"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "XLS1po6Gj5ll",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 272
+        },
+        "outputId": "c5cb70db-3761-424f-80f8-5c8d10bbaf29"
+      },
+      "cell_type": "code",
+      "source": [
+        "print(classification_report(y_test,pred1))"
+      ],
+      "execution_count": 21,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "             precision    recall  f1-score   support\n",
+            "\n",
+            "          0       1.00      1.00      1.00        57\n",
+            "          1       0.96      1.00      0.98        52\n",
+            "          2       1.00      1.00      1.00        48\n",
+            "          3       1.00      1.00      1.00        49\n",
+            "          4       1.00      1.00      1.00        60\n",
+            "          5       1.00      0.96      0.98        56\n",
+            "          6       1.00      1.00      1.00        60\n",
+            "          7       1.00      0.97      0.98        64\n",
+            "          8       0.98      0.96      0.97        52\n",
+            "          9       0.93      1.00      0.97        42\n",
+            "\n",
+            "avg / total       0.99      0.99      0.99       540\n",
+            "\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "MKcpFUXMj-7b",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "outputId": "cac8cb04-4a7f-4fd6-beba-eb3b9201daaa"
+      },
+      "cell_type": "code",
+      "source": [
+        "metrics.accuracy_score(y_test,pred1)"
+      ],
+      "execution_count": 22,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0.9888888888888889"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 22
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "8jgI6mC_kHpv",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 187
+        },
+        "outputId": "bac10ff8-1b51-4b0d-8f48-5019d81dc4ce"
+      },
+      "cell_type": "code",
+      "source": [
+        "confusion_matrix(y_test,pred1)\n"
+      ],
+      "execution_count": 23,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([[57,  0,  0,  0,  0,  0,  0,  0,  0,  0],\n",
+              "       [ 0, 52,  0,  0,  0,  0,  0,  0,  0,  0],\n",
+              "       [ 0,  0, 48,  0,  0,  0,  0,  0,  0,  0],\n",
+              "       [ 0,  0,  0, 49,  0,  0,  0,  0,  0,  0],\n",
+              "       [ 0,  0,  0,  0, 60,  0,  0,  0,  0,  0],\n",
+              "       [ 0,  0,  0,  0,  0, 54,  0,  0,  0,  2],\n",
+              "       [ 0,  0,  0,  0,  0,  0, 60,  0,  0,  0],\n",
+              "       [ 0,  0,  0,  0,  0,  0,  0, 62,  1,  1],\n",
+              "       [ 0,  2,  0,  0,  0,  0,  0,  0, 50,  0],\n",
+              "       [ 0,  0,  0,  0,  0,  0,  0,  0,  0, 42]])"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 23
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "SDKjmeuJk7et",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "model2=SVC(kernel=\"linear\")\n"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "wi6Cgu5glphW",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 85
+        },
+        "outputId": "03f5f471-ba24-4a7f-9c98-0e9b59e98b9e"
+      },
+      "cell_type": "code",
+      "source": [
+        "model2.fit(x_train,y_train)\n"
+      ],
+      "execution_count": 25,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,\n",
+              "  decision_function_shape='ovr', degree=3, gamma='auto', kernel='linear',\n",
+              "  max_iter=-1, probability=False, random_state=None, shrinking=True,\n",
+              "  tol=0.001, verbose=False)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 25
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "krgDnNgRl7GG",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "pred2=model2.predict(x_test)\n"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "NEjUGI-5mAxY",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 272
+        },
+        "outputId": "416e0759-f97c-44b2-dbf0-1ffa2cd3946e"
+      },
+      "cell_type": "code",
+      "source": [
+        "print(classification_report(y_test,pred2))\n"
+      ],
+      "execution_count": 27,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "             precision    recall  f1-score   support\n",
+            "\n",
+            "          0       1.00      1.00      1.00        57\n",
+            "          1       0.94      0.96      0.95        52\n",
+            "          2       1.00      1.00      1.00        48\n",
+            "          3       0.98      1.00      0.99        49\n",
+            "          4       0.98      1.00      0.99        60\n",
+            "          5       0.98      0.95      0.96        56\n",
+            "          6       1.00      0.98      0.99        60\n",
+            "          7       1.00      0.97      0.98        64\n",
+            "          8       0.94      0.88      0.91        52\n",
+            "          9       0.89      1.00      0.94        42\n",
+            "\n",
+            "avg / total       0.97      0.97      0.97       540\n",
+            "\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "zcxmhliNmHNw",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "outputId": "fbafb974-64b9-4a69-eb68-ca8090cda793"
+      },
+      "cell_type": "code",
+      "source": [
+        "metrics.accuracy_score(y_test,pred2)\n"
+      ],
+      "execution_count": 28,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0.9740740740740741"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 28
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "RoPQd6AlmL7b",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 187
+        },
+        "outputId": "5a679d8c-31d1-406c-9d31-5e19d0b19c90"
+      },
+      "cell_type": "code",
+      "source": [
+        "confusion_matrix(y_test,pred2)\n"
+      ],
+      "execution_count": 29,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([[57,  0,  0,  0,  0,  0,  0,  0,  0,  0],\n",
+              "       [ 0, 50,  0,  0,  0,  0,  0,  0,  2,  0],\n",
+              "       [ 0,  0, 48,  0,  0,  0,  0,  0,  0,  0],\n",
+              "       [ 0,  0,  0, 49,  0,  0,  0,  0,  0,  0],\n",
+              "       [ 0,  0,  0,  0, 60,  0,  0,  0,  0,  0],\n",
+              "       [ 0,  0,  0,  0,  0, 53,  0,  0,  0,  3],\n",
+              "       [ 0,  0,  0,  0,  1,  0, 59,  0,  0,  0],\n",
+              "       [ 0,  0,  0,  0,  0,  0,  0, 62,  1,  1],\n",
+              "       [ 0,  3,  0,  1,  0,  1,  0,  0, 46,  1],\n",
+              "       [ 0,  0,  0,  0,  0,  0,  0,  0,  0, 42]])"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 29
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "Wek3hLRnmOv1",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "model3=SVC(kernel=\"sigmoid\") \n"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "9fvjt2xDmTVz",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 85
+        },
+        "outputId": "e3913c5f-abe0-41d7-d65c-528e929701c5"
+      },
+      "cell_type": "code",
+      "source": [
+        "model3.fit(x_train,y_train)\n"
+      ],
+      "execution_count": 31,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,\n",
+              "  decision_function_shape='ovr', degree=3, gamma='auto', kernel='sigmoid',\n",
+              "  max_iter=-1, probability=False, random_state=None, shrinking=True,\n",
+              "  tol=0.001, verbose=False)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 31
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "EQC3tq-8mcUa",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "pred3=model3.predict(x_test)\n"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "Jtk7KNZAnAMk",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 326
+        },
+        "outputId": "d53bee32-11f9-4ff9-e4bd-5cc30db8ce55"
+      },
+      "cell_type": "code",
+      "source": [
+        "print(classification_report(y_test,pred3))\n"
+      ],
+      "execution_count": 33,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "             precision    recall  f1-score   support\n",
+            "\n",
+            "          0       0.00      0.00      0.00        57\n",
+            "          1       0.00      0.00      0.00        52\n",
+            "          2       0.00      0.00      0.00        48\n",
+            "          3       0.00      0.00      0.00        49\n",
+            "          4       0.00      0.00      0.00        60\n",
+            "          5       0.00      0.00      0.00        56\n",
+            "          6       0.00      0.00      0.00        60\n",
+            "          7       0.00      0.00      0.00        64\n",
+            "          8       0.00      0.00      0.00        52\n",
+            "          9       0.08      1.00      0.14        42\n",
+            "\n",
+            "avg / total       0.01      0.08      0.01       540\n",
+            "\n"
+          ],
+          "name": "stdout"
+        },
+        {
+          "output_type": "stream",
+          "text": [
+            "/usr/local/lib/python2.7/dist-packages/sklearn/metrics/classification.py:1135: UndefinedMetricWarning: Precision and F-score are ill-defined and being set to 0.0 in labels with no predicted samples.\n",
+            "  'precision', 'predicted', average, warn_for)\n"
+          ],
+          "name": "stderr"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "GMC1iU-UnYX4",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "outputId": "8aa7dbb7-54c7-4786-e5fc-63fdd361140b"
+      },
+      "cell_type": "code",
+      "source": [
+        "metrics.accuracy_score(y_test,pred3)\n"
+      ],
+      "execution_count": 34,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0.07777777777777778"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 34
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "PZOmOxWOnt5u",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 187
+        },
+        "outputId": "5fb3a704-40ea-4b33-c373-48b74f880e2e"
+      },
+      "cell_type": "code",
+      "source": [
+        "confusion_matrix(y_test,pred3)\n"
+      ],
+      "execution_count": 35,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([[ 0,  0,  0,  0,  0,  0,  0,  0,  0, 57],\n",
+              "       [ 0,  0,  0,  0,  0,  0,  0,  0,  0, 52],\n",
+              "       [ 0,  0,  0,  0,  0,  0,  0,  0,  0, 48],\n",
+              "       [ 0,  0,  0,  0,  0,  0,  0,  0,  0, 49],\n",
+              "       [ 0,  0,  0,  0,  0,  0,  0,  0,  0, 60],\n",
+              "       [ 0,  0,  0,  0,  0,  0,  0,  0,  0, 56],\n",
+              "       [ 0,  0,  0,  0,  0,  0,  0,  0,  0, 60],\n",
+              "       [ 0,  0,  0,  0,  0,  0,  0,  0,  0, 64],\n",
+              "       [ 0,  0,  0,  0,  0,  0,  0,  0,  0, 52],\n",
+              "       [ 0,  0,  0,  0,  0,  0,  0,  0,  0, 42]])"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 35
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "Rx75YUrzod-j",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        ""
+      ],
+      "execution_count": 0,
+      "outputs": []
+    }
+  ]
+}
